@@ -1,0 +1,63 @@
+{
+  "name": "verstak3d",
+  "productName": "Verstak 3D",
+  "version": "1.0.0",
+  "description": "Верстак 3D — открытый 3D-редактор для 3D-печати в духе Tinkercad, работает без интернета",
+  "main": "main.js",
+  "license": "MIT",
+  "author": {
+    "name": "Verstak 3D contributors",
+    "email": "verstak3d@example.org"
+  },
+  "homepage": "https://github.com/",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win",
+    "dist:mac": "electron-builder --mac",
+    "dist:linux": "electron-builder --linux",
+    "web": "node scripts/build-web.js"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "org.verstak3d.app",
+    "productName": "Verstak 3D",
+    "copyright": "MIT License",
+    "directories": { "output": "dist", "buildResources": "build" },
+    "files": ["main.js", "preload.js", "package.json", "app/**/*"],
+    "fileAssociations": [
+      { "ext": "v3d", "name": "Verstak 3D Project", "description": "Проект Верстак 3D", "role": "Editor", "mimeType": "application/x-verstak3d" }
+    ],
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }, { "target": "portable", "arch": ["x64"] }],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Верстак 3D",
+      "artifactName": "Verstak3D-Setup-${version}.${ext}"
+    },
+    "portable": { "artifactName": "Verstak3D-Portable-${version}.${ext}" },
+    "mac": {
+      "target": [{ "target": "dmg", "arch": ["x64", "arm64"] }],
+      "category": "public.app-category.graphics-design",
+      "icon": "build/icon.png"
+    },
+    "dmg": { "artifactName": "Verstak3D-${version}-mac-${arch}.${ext}" },
+    "linux": {
+      "target": [{ "target": "AppImage", "arch": ["x64"] }, { "target": "deb", "arch": ["x64"] }],
+      "category": "Graphics",
+      "icon": "build/icon.png",
+      "synopsis": "3D-редактор для 3D-печати",
+      "desktop": { "Name": "Верстак 3D", "Comment": "3D-редактор для 3D-печати" },
+      "artifactName": "Verstak3D-${version}-linux-${arch}.${ext}"
+    }
+  }
+}

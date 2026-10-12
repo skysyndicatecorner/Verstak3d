@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' data: blob:">
+<title>Верстак 3D</title>
+<link rel="icon" href="icon.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <!-- Заголовок окна с панелью быстрого доступа, как в Office -->
+  <header class="titlebar">
+    <div class="qat" role="toolbar" aria-label="Панель быстрого доступа">
+      <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M3 7l9 5 9-5M12 12v10" fill="none" stroke="currentColor" stroke-width="1.8" opacity=".6"/></svg></span>
+      <button class="qb" data-cmd="save" data-icon="save" title="Сохранить (Ctrl+S)"></button>
+      <button class="qb" data-cmd="undo" data-icon="undo" title="Отменить (Ctrl+Z)"></button>
+      <button class="qb" data-cmd="redo" data-icon="redo" title="Повторить (Ctrl+Y)"></button>
+    </div>
+    <div class="doc-title" id="docTitle">Без имени — Верстак 3D</div>
+    <div class="title-right">
+      <button class="qb" data-cmd="help" data-icon="help" title="Справка (F1)"></button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Вкладки ленты">
+    <button class="tab file-tab" data-cmd="backstage">Файл</button>
+    <button class="tab on" role="tab" data-tab="home">Главная</button>
+    <button class="tab" role="tab" data-tab="insert">Вставка</button>
+    <button class="tab" role="tab" data-tab="arrange">Упорядочить</button>
+    <button class="tab" role="tab" data-tab="tools">Инструменты</button>
+    <button class="tab" role="tab" data-tab="view">Вид</button>
+    <span class="tabs-spacer"></span>
+    <button class="qb ribbon-toggle" data-cmd="toggle-ribbon" data-icon="chevron-up" title="Свернуть ленту (Ctrl+F1)"></button>
+  </nav>
+
+  <div class="ribbon" id="ribbon">
+    <!-- ГЛАВНАЯ -->
+    <div class="rpanel on" data-panel="home">
+      <div class="rgroup"><div class="rg-body">
+        <button class="rb big" data-cmd="paste" data-icon="paste" title="Вставить (Ctrl+V)"><span>Вставить</span></button>
+        <div class="rcol">
+          <button class="rb sm" data-cmd="cut" data-icon="cut" title="Вырезать (Ctrl+X)"><span>Вырезать</span></button>
+          <button class="rb sm" data-cmd="copy" data-icon="copy" title="Копировать (Ctrl+C)"><span>Копировать</span></button>
+          <button class="rb sm" data-cmd="dup" data-icon="dup" title="Дублировать (Ctrl+D)"><span>Дублировать</span></button>
+        </div>
+      </div><div class="rg-label">Буфер обмена</div></div>
+
+      <div class="rgroup"><div class="rg-body">
+        <div class="rcol">
+          <button class="rb sm" data-cmd="undo" data-icon="undo" title="Отменить (Ctrl+Z)"><span>Отменить</span></button>
+          <button class="rb sm" data-cmd="redo" data-icon="redo" title="Повторить (Ctrl+Y)"><span>Повторить</span></button>
+          <button class="rb sm" data-cmd="del" data-icon="trash" title="Удалить (Delete)"><span>Удалить</span></button>
+        </div>
+      </div><div class="rg-label">Правка</div></div>
+
+      <div class="rgroup"><div class="rg-body">
+        <button class="rb big" data-cmd="solid" data-icon="solid" title="Сделать телом (S)"><span>Тело</span></button>
+        <button class="rb big" data-cmd="hole" data-icon="hole" title="Сделать отверстием — вырежется при группировке (H)"><span>Отверстие</span></button>
+      </div><div class="rg-label">Тип</div></div>
+
+      <div class="rgroup"><div class="rg-body">
+        <button class="rb big" data-cmd="group" data-icon="group" title="Сгруппировать: тела объединятся, отверстия вырежутся (Ctrl+G)"><span>Сгруппировать</span></button>
+        <div class="rcol">
+          <button class="rb sm" data-cmd="subtract" data-icon="subtract" title="Вычесть: из первой выбранной фигуры вырезать остальные"><span>Вычесть</span></button>
+          <button class="rb sm" data-cmd="intersect" data-icon="intersect" title="Пересечь: оставить только общую часть"><span>Пересечь</span></button>
+          <button class="rb sm" data-cmd="ungroup" data-icon="ungroup" title="Разгруппировать (Ctrl+Shift+G)"><span>Разгруппировать</span></button>
+        </div>
+      </div><div class="rg-label">Объединение фигур</div></div>
+
+      <div class="rgroup"><div class="rg-body">
+        <button class="rb big" data-cmd="color-menu" data-icon="color" title="Цвет заливки"><span>Цвет <i class="caret"></i></span><b class="color-bar" id="colorBar"></b></button>
+      </div><div class="rg-label">Цвет</div></div>
+
+      <div class="rgroup"><div class="rg-body">
+        <div class="rcol">
+          <button class="rb sm" data-cmd="select-all" data-icon="select-all" title="Выделить всё (Ctrl+A)"><span>Выделить всё</span></button>
+          <button class="rb sm" data-cmd="deselect" data-icon="deselect" title="Снять выделение (Esc)"><span>Снять выделение</span></button>
+          <button class="rb sm" data-cmd="lock" data-icon="lock" title="Закрепить: фигуру нельзя сдвинуть мышью (Ctrl+L)"><span>Закрепить</span></button>
+        </div>
+      </div><div class="rg-label">Выделение</div></div>
+    </div>
+
+    <!-- ВСТАВКА -->
+    <div class="rpanel" data-panel="insert">
+      <div class="rgroup gallery-group"><div class="rg-body">
+        <div class="gallery" id="gallery" aria-label="Фигуры"></div>
+      </div><div class="rg-label">Фигуры — нажмите или перетащите на плоскость</div></div>
+      <div class="rgroup"><div class="rg-body">
+        <button class="rb big toggle" data-cmd="as-hole" data-icon="hole" title="Новые фигуры вставлять сразу как отверстия"><span>Как<br>отверстие</span></button>
+      </div><div class="rg-label">Режим</div></div>
+      <div class="rgroup"><div class="rg-body">
+        <button class="rb big" data-cmd="add-text" data-icon="text" title="Вставить объёмный текст (T)"><span>Текст</span></button>
+        <button class="rb big" data-cmd="import" data-icon="import" title="Вставить модель из файла STL"><span>Импорт<br>STL</span></button>
+      </div><div class="rg-label">Вставить</div></div>
+    </div>
+
+    <!-- УПОРЯДОЧИТЬ -->
+    <div class="rpanel" data-panel="arrange">
+      <div class="rgroup"><div class="rg-body">
+        <button class="rb big" data-cmd="drop" data-icon="drop" title="Опустить на рабочую плоскость (D)"><span>На<br>плоскость</span></button>
+      </div><div class="rg-label">Положение</div></div>
+      <div class="rgroup"><div class="rg-body">
+        <div class="rcol">
+          <button class="rb sm" data-cmd="al-0-min" data-icon="al-left" title="Выровнять по левому краю"><span>По левому</span></button>
+          <button class="rb sm" data-cmd="al-0-mid" data-icon="al-cx" title="Выровнять по центру (ширина)"><span>По центру</span></button>
+          <button class="rb sm" data-cmd="al-0-max" data-icon="al-right" title="Выровнять по правому краю"><span>По правому</span></button>
+        </div>
+        <div class="rcol">
+          <button class="rb sm" data-cmd="al-2-max" data-icon="al-front" title="Выровнять по переднему краю"><span>По переднему</span></button>
+          <button class="rb sm" data-cmd="al-2-mid" data-icon="al-cy" title="Выровнять по центру (глубина)"><span>По середине</span></button>
+          <button class="rb sm" data-cmd="al-2-min" data-icon="al-back" title="Выровнять по заднему краю"><span>По заднему</span></button>
+        </div>
+        <div class="rcol">
+          <button class="rb sm" data-cmd="al-1-min" data-icon="al-bottom" title="Выровнять по низу"><span>По низу</span></button>
+          <button class="rb sm" data-cmd="al-1-mid" data-icon="al-cz" title="Выровнять по центру (высота)"><span>По высоте</span></button>
+          <button class="rb sm" data-cmd="al-1-max" data-icon="al-top" title="Выровнять по верху"><span>По верху</span></button>
+        </div>
+      </div><div class="rg-label">Выравнивание (2+ фигуры)</div></div>
+      <div class="rgroup"><div class="rg-body">
+        <button class="rb big toggle" data-cmd="rotate-mode" data-icon="rotate" title="Свободный поворот мышью (E)"><span>Повернуть</span></button>
+        <div class="rcol">
+          <button class="rb sm" data-cmd="rot-left" data-icon="rot-left" title="Повернуть на 90° влево"><span>Влево 90°</span></button>
+          <button class="rb sm" data-cmd="rot-right" data-icon="rot-right" title="Повернуть на 90° вправо"><span>Вправо 90°</span></button>
+          <button class="rb sm" data-cmd="rot-side" data-icon="rot-side" title="Положить на бок (90° вокруг X)"><span>На бок</span></button>
+        </div>
+        <div class="rcol">
+          <button class="rb sm" data-cmd="rot-back" data-icon="rot-side" title="Наклонить вперёд (90° вокруг Y)"><span>Вперёд 90°</span></button>
+          <button class="rb sm" data-cmd="rot-reset" data-icon="rot-reset" title="Сбросить поворот"><span>Сбросить</span></button>
+        </div>
+      </div><div class="rg-label">Поворот</div></div>
+      <div class="rgroup"><div class="rg-body">
+        <div class="rcol">
+          <button class="rb sm" data-cmd="mir-0" data-icon="mir-x" title="Отразить по ширине"><span>Слева направо</span></button>
+          <button class="rb sm" data-cmd="mir-2" data-icon="mir-y" title="Отразить по глубине"><span>Спереди назад</span></button>
+          <button class="rb sm" data-cmd="mir-1" data-icon="mir-z" title="Отразить по высоте"><span>Сверху вниз</span></button>
+        </div>
+      </div><div class="rg-label">Отражение</div></div>
+      <div class="rgroup"><div class="rg-body">
+        <button class="rb big" data-cmd="array" data-icon="array" title="Создать ряд или круг из копий"><span>Массив</span></button>
+      </div><div class="rg-label">Копии</div></div>
+    </div>
+
+    <!-- ИНСТРУМЕНТЫ -->
+    <div class="rpanel" data-panel="tools">
+      <div class="rgroup"><div class="rg-body">
+        <button class="rb big toggle" data-cmd="ruler" data-icon="ruler" title="Линейка: измерить расстояние между двумя точками (R)"><span>Линейка</span></button>
+      </div><div class="rg-label">Измерения</div></div>
+      <div class="rgroup"><div class="rg-body">
+        <button class="rb big toggle" data-cmd="ratio" data-icon="ratio" title="Сохранять пропорции при изменении размера (Shift — временно)"><span>Сохранять<br>пропорции</span></button>
+        <div class="rcol">
+          <button class="rb sm" data-cmd="scale-up" data-icon="zoom-in" title="Увеличить выделенное на 10%"><span>Больше на 10%</span></button>
+          <button class="rb sm" data-cmd="scale-down" data-icon="zoom-out" title="Уменьшить выделенное на 10%"><span>Меньше на 10%</span></button>
+          <button class="rb sm" data-cmd="scale-x2" data-icon="x2" title="Увеличить в 2 раза"><span>Вдвое больше</span></button>
+        </div>
+      </div><div class="rg-label">Размер</div></div>
+      <div class="rgroup"><div class="rg-body">
+        <div class="rcol fields">
+          <label class="rfield" for="snap"><span>Шаг сетки</span>
+            <select id="snap">
+              <option value="0.1">0,1 мм</option><option value="0.25">0,25 мм</option><option value="0.5">0,5 мм</option>
+              <option value="1" selected>1 мм</option><option value="2">2 мм</option><option value="5">5 мм</option><option value="10">10 мм</option>
+            </select></label>
+          <label class="rcheck"><input type="checkbox" id="snapOn" checked> Привязка к сетке</label>
+          <label class="rfield" for="rotSnap"><span>Шаг поворота</span>
+            <select id="rotSnap"><option value="1">1°</option><option value="5">5°</option><option value="15" selected>15°</option><option value="45">45°</option><option value="90">90°</option></select></label>
+        </div>
+      </div><div class="rg-label">Сетка</div></div>
+    </div>
+
+    <!-- ВИД -->
+    <div class="rpanel" data-panel="view">
+      <div class="rgroup"><div class="rg-body">
+        <button class="rb big" data-cmd="v-fit" data-icon="fit" title="Показать всё или выделенное (F)"><span>Показать<br>всё</span></button>
+        <div class="rcol">
+          <button class="rb sm" data-cmd="v-home" data-icon="home" title="Исходный вид"><span>Исходный</span></button>
+          <button class="rb sm" data-cmd="v-top" data-icon="v-top" title="Вид сверху"><span>Сверху</span></button>
+          <button class="rb sm" data-cmd="v-front" data-icon="v-front" title="Вид спереди"><span>Спереди</span></button>
+        </div>
+        <div class="rcol">
+          <button class="rb sm" data-cmd="v-right" data-icon="v-right" title="Вид справа"><span>Справа</span></button>
+          <button class="rb sm" data-cmd="zoom-in" data-icon="zoom-in" title="Приблизить"><span>Приблизить</span></button>
+          <button class="rb sm" data-cmd="zoom-out" data-icon="zoom-out" title="Отдалить"><span>Отдалить</span></button>
+        </div>
+      </div><div class="rg-label">Камера</div></div>
+      <div class="rgroup"><div class="rg-body">
+        <div class="rcol fields">
+          <label class="rfield wide" for="bed"><span>Стол принтера</span><select id="bed"></select></label>
+          <label class="rfield wide" for="density"><span>Материал</span><select id="density">
+            <option value="1.24">PLA — 1,24 г/см³</option><option value="1.27">PETG — 1,27 г/см³</option>
+            <option value="1.04">ABS — 1,04 г/см³</option><option value="1.21">TPU — 1,21 г/см³</option>
+          </select></label>
+        </div>
+      </div><div class="rg-label">3D-печать</div></div>
+      <div class="rgroup"><div class="rg-body">
+        <div class="rcol">
+          <label class="rcheck"><input type="checkbox" id="showGrid" checked> Сетка</label>
+          <label class="rcheck"><input type="checkbox" id="showDims" checked> Размеры на модели</label>
+          <label class="rcheck"><input type="checkbox" id="showLib" checked> Панель фигур</label>
+        </div>
+        <div class="rcol">
+          <label class="rcheck"><input type="checkbox" id="showPane" checked> Панель «Формат»</label>
+          <label class="rfield" for="theme"><span>Тема</span><select id="theme"><option value="system">Как в системе</option><option value="light">Светлая</option><option value="dark">Тёмная</option></select></label>
+        </div>
+      </div><div class="rg-label">Показать</div></div>
+    </div>
+  </div>
+
+  <main class="work" id="work">
+    <aside class="library" id="library" aria-label="Фигуры">
+      <div class="lib-head">
+        <h2>Фигуры</h2>
+        <label class="lib-hole" title="Новые фигуры вставлять как отверстия"><input type="checkbox" id="libHole"> отверстие</label>
+      </div>
+      <div class="lib-grid" id="libGrid"></div>
+      <p class="lib-tip">Перетащите фигуру на плоскость. Любую фигуру — даже сердце или текст — можно сделать отверстием и вырезать.</p>
+    </aside>
+
+    <section class="viewport" id="vp">
+      <canvas id="cv" tabindex="0" aria-label="Рабочая плоскость"></canvas>
+      <div class="dims" id="dims">
+        <label class="dim" id="dim-w" title="Ширина, мм"><input data-dim="w" inputmode="decimal" aria-label="Ширина"></label>
+        <label class="dim" id="dim-d" title="Глубина, мм"><input data-dim="d" inputmode="decimal" aria-label="Глубина"></label>
+        <label class="dim" id="dim-h" title="Высота, мм"><input data-dim="h" inputmode="decimal" aria-label="Высота"></label>
+        <label class="dim elev" id="dim-e" title="Высота над плоскостью, мм"><i>↥</i><input data-dim="e" inputmode="decimal" aria-label="Высота над плоскостью"></label>
+      </div>
+      <div class="marquee" id="marquee" hidden></div>
+      <div class="ruler-label" id="rulerLabel" hidden></div>
+      <div class="navpad" aria-label="Навигация">
+        <button class="qb" data-cmd="v-home" data-icon="home" title="Исходный вид"></button>
+        <button class="qb" data-cmd="v-fit" data-icon="fit" title="Показать всё (F)"></button>
+        <button class="qb" data-cmd="zoom-in" data-icon="plus" title="Приблизить"></button>
+        <button class="qb" data-cmd="zoom-out" data-icon="minus" title="Отдалить"></button>
+      </div>
+      <div class="toast" id="toast" role="status" hidden></div>
+      <div class="busy" id="busy" hidden><span>Считаю…</span></div>
+    </section>
+
+    <aside class="pane" id="pane" aria-label="Формат">
+      <div class="pane-title"><h2 id="paneTitle">Формат фигуры</h2><button class="qb" data-cmd="close-pane" data-icon="close" title="Скрыть панель"></button></div>
+      <div class="pane-body" id="paneBody"></div>
+    </aside>
+  </main>
+
+  <footer class="statusbar">
+    <span id="stLeft"></span>
+    <span id="stWarn" class="warn" hidden></span>
+    <span class="st-spacer"></span>
+    <span id="stModel"></span>
+    <span id="stSnap"></span>
+  </footer>
+</div>
+
+<!-- Представление Backstage (вкладка «Файл») -->
+<div class="backstage" id="backstage" hidden>
+  <nav class="bs-nav">
+    <button class="bs-back" data-cmd="backstage-close" title="Назад (Esc)"><i data-icon="back"></i></button>
+    <button class="bs-item on" data-bs="new">Создать</button>
+    <button class="bs-item" data-bs="open">Открыть</button>
+    <button class="bs-item" data-cmd="save">Сохранить</button>
+    <button class="bs-item" data-cmd="save-as">Сохранить как</button>
+    <button class="bs-item" data-bs="export">Экспорт</button>
+    <span class="bs-sep"></span>
+    <button class="bs-item" data-bs="help">Справка</button>
+    <button class="bs-item" data-bs="about">О программе</button>
+  </nav>
+  <div class="bs-content" id="bsContent"></div>
+</div>
+
+<div class="modal" id="modal" hidden><div class="modal-box" role="dialog" aria-modal="true" id="modalBox"></div></div>
+<div class="popover" id="popover" hidden></div>
+<div class="ctxmenu" id="ctxmenu" hidden role="menu"></div>
+<input type="file" id="fileProject" accept=".v3d,.json,application/json" hidden>
+<input type="file" id="fileSTL" accept=".stl,model/stl" hidden>
+
+<script src="vendor/three.min.js"></script>
+<script src="vendor/OrbitControls.js"></script>
+<script src="vendor/TransformControls.js"></script>
+<script src="js/core.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
